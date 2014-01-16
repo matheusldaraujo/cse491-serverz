@@ -19,5 +19,5 @@ while True:
     c, (client_host, client_port) = s.accept()
     print 'Got connection from', client_host, client_port
     c.send('Thank you for connecting')
-    c.send("good bye.")
+    c.send("good bye.") # Not consistence with double quotes and simple quotes Here. Matheus Comment
     c.close()
