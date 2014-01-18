@@ -24,4 +24,7 @@ while True:
     c.send('HTTP/1.0 200 OK\r\n')
     c.send("Content-Type: text/html\r\n\r\n")
     c.send('<html><body><h1>Hello, world</h1> this is leflerja\'s Web server</body></html>')
+    # @comment   Can use double quotes to avoid problems here ^^^, 
+    #            Separating lines & tags may make it easier to expand on in future
     c.close()
+
