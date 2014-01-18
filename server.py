@@ -3,10 +3,8 @@ import random
 import socket
 import time
 
-def handle_connection(conn, r_line, c_type, r_body):
-  conn.send(r_line)
-  conn.send(c_type)
-  conn.send(r_body)
+def handle_connection(conn, response):
+  conn.send(response)
   conn.close()
 
 def main():
@@ -27,13 +25,19 @@ def main():
     print c.recv(1000)
     print 'Got connection from', client_host, client_port
 
-    r_line = "HTTP/1.0 200 OK\r\n"
-    c_type = "Content-Type: text/html\r\n\r\n"
-    r_body = "<html><body> \
-              <h1>Hello, world</h1> this is leflerja's Web server \
-              </body></html>"
+#    r_line = "HTTP/1.0 200 OK\r\n"
+#    c_type = "Content-Type: text/html\r\n\r\n"
+#    r_body = "<html><body> \
+#              <h1>Hello, world</h1> this is leflerja's Web server \
+#              </body></html>"
 
-    handle_connection(c, r_line, c_type, r_body)
+    response = 'HTTP/1.0 200 OK\r\n' + \
+               'Content-type: text/html\r\n' + \
+               '\r\n' + \
+               '<h1>Hello, world.</h1>' + \
+               'This is leflerja\'s Web server.'
+
+    handle_connection(c, response)
 
 if __name__ == '__main__':
   main()
