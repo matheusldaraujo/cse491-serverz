@@ -20,11 +20,17 @@ while True:
     print c.recv(1000)
     print 'Got connection from', client_host, client_port
 
-    # From: http://stackoverflow.com/questions/8315209/sending-http-headers-with-python
-    c.send('HTTP/1.0 200 OK\r\n')
-    c.send("Content-Type: text/html\r\n\r\n")
-    c.send('<html><body><h1>Hello, world</h1> this is leflerja\'s Web server</body></html>')
-    # @comment   Can use double quotes to avoid problems here ^^^, 
-    #            Separating lines & tags may make it easier to expand on in future
+    # New code for hw2
+    response_type = "HTTP/1.0"
+    response_line = "200 OK\r\n"
+    content_type = "Content-Type: text/html\r\n\r\n"
+    response_body = "<html><body> \
+                     <h1>Hello, world</h1> this is leflerja's Web server \
+                     </body></html>"
+
+    c.send(response_type + ' ' + response_line)
+    c.send(content_type)
+    c.send(response_body)
+
     c.close()
 

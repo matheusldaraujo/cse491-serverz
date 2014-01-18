@@ -5,3 +5,7 @@
 2014-01-10  Jason Lefler <leflerja@arctic.cse.msu.edu>
 
  * server.py: Added the HTTP 1.0 response
+
+2014-01-18  Jason Lefler <leflerja@arctic.cse.msu.edu>
+
+ * server.py: Addressed homework 1 review comments
