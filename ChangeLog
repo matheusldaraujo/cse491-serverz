@@ -9,3 +9,8 @@
 2014-01-18  Jason Lefler <leflerja@arctic.cse.msu.edu>
 
  * server.py: Addressed homework 1 review comments
+
+2014-01-19  Jason Lefler <leflerja@arctic.cse.msu.edu>
+
+ * server.py: Added homework 2 code
+ * test_server.py: Added tests for homework 2
