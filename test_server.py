@@ -15,7 +15,7 @@ class FakeConnection(object):
             r = self.to_recv
             self.to_recv = ""
             return r
-            
+
         r, self.to_recv = self.to_recv[:n], self.to_recv[n:]
         return r
 
@@ -26,15 +26,59 @@ class FakeConnection(object):
         self.is_closed = True
 
 # Test a basic GET call.
-
 def test_handle_connection():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      '<h1>Hello, world.</h1>' + \
-                      'This is ctb\'s Web server.'
+    expected_return = '''
+HTTP/1.0 200 OK
+Content-Type: text/html
+
+<a href="/content">Content</a>
+<a href="/file">File</a>
+<a href="/image">image</a>
+                  '''
 
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_content():
+    conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
+    expected_return = '''
+HTTP/1.0 200 OK
+Content-Type: text/html
+
+Content's Content
+                  '''
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+def test_handle_connection_file():
+    conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
+    expected_return = '''
+HTTP/1.0 200 OK
+Content-Type: text/html
+
+File's Content
+                  '''
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+def test_handle_connection_image():
+    conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
+    expected_return = '''
+HTTP/1.0 200 OK
+Content-Type: text/html
+
+Image's Content
+                  '''
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+
+def test_handle_connection_post():
+    conn = FakeConnection("POST / HTTP/1.0\rn\rn")
+    expected_return = "Hello World"
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, "Got: %s" % (repr(conn,sent),)
+
+
