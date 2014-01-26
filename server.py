@@ -1,50 +1,70 @@
-#!/usr/bin/env python
 import random
 import socket
 import time
+from urlparse import urlparse, parse_qs
 
-# This method handles the get requests
+def request_index(conn, path):
+    return '<h1>Hello World!</h1>\r\n' + \
+           "This is leflerja's Web server<br>\r\n" + \
+           "<a href='/content'>Content</a><br>\r\n" + \
+           "<a href='/files'>Files</a><br>\r\n" + \
+           "<a href='/images'>Images</a><br>\r\n" + \
+           "<a href='/form'>Form</a>\r\n"
+
+def request_content(conn, path):
+    return '<h1>Content Page</h1>\r\n' + \
+           'This is the content page\r\n'
+
+def request_files(conn, path):
+    return '<h1>Files Page</h1>\r\n' + \
+           'This is the files page\r\n'
+
+def request_images(conn, path):
+    return '<h1>Images Page</h1>\r\n' + \
+           'This is the images page\r\n'
+
+def request_form(conn, path):
+    return '<h1>Form Page</h1>\r\n' + \
+           '<form action=\'/submit\' method=\'GET\'>\r\n' + \
+           'First Name: <input type=\'text\' name=\'firstname\'><br>\r\n' + \
+           'Last Name: <input type=\'text\' name=\'lastname\'><br>\r\n' + \
+           '<input type=\'submit\' name=\'submit\'>\r\n' + \
+           '</form>\r\n'
+
+def request_submit(conn, path):
+    return '<h1>Submit Page</h1>\r\n' + \
+           'Hello {0} {1}'.format(path['firstname'][0], path['lastname'][0])
+
 def get_request(conn, path):
-    if path == '/':
-        conn.send('HTTP/1.0 200 OK\r\n')
-        conn.send('Content-type: text/html\r\n\r\n')
-        conn.send('<html><body>')
-        conn.send('<h1>Hello World!</h1>')
-        conn.send("This is leflerja's Web server<br>")
-        conn.send("<a href='/content'>Content</a><br>")
-        conn.send("<a href='/files'>Files</a><br>")
-        conn.send("<a href='/images'>Images</a>")
-    elif path == '/content':
-        conn.send('HTTP/1.0 200 OK\r\n')
-        conn.send('Content-type: text/html\r\n\r\n')
-        conn.send('<html><body>')
-        conn.send('<h1>Content Page</h1>')
-        conn.send('This is the content page')
-    elif path == '/files':
-        conn.send('HTTP/1.0 200 OK\r\n')
-        conn.send('Content-type: text/html\r\n\r\n')
-        conn.send('<html><body>')
-        conn.send('<h1>Files Page</h1>')
-        conn.send('This is the files page')
-    elif path == '/images':
-        conn.send('HTTP/1.0 200 OK\r\n')
-        conn.send('Content-type: text/html\r\n\r\n')
-        conn.send('<html><body>')
-        conn.send('<h1>Images Page</h1>')
-        conn.send('This is the images page')
-    conn.send('</body></html>')
+    form_keys = parse_qs(urlparse(path)[4])
+    page = urlparse(path)[2]
 
-# This method handles the post requests
+    header = 'HTTP/1.0 200 OK\r\n' + \
+             'Content-type: text/html\r\n\r\n' + \
+             '<html><body>\r\n'
+    footer = '</body></html>\r\n'
+
+    options = {'/'            : request_index,   \
+               '/favicon.ico' : request_index,   \ # Not sure why I get this request
+               '/content'     : request_content, \
+               '/files'       : request_files,   \
+               '/images'      : request_images,  \
+               '/form'        : request_form,    \
+               '/submit'      : request_submit   }
+
+    conn.send(header)
+    conn.send(options[page](conn, form_keys))
+    conn.send(footer)
+
 def post_request(conn):
     conn.send('HTTP/1.0 200 OK\r\n\r\n')
     conn.send('This is a post request')
 
-# This method determines the type of request and calls the proper method
 def handle_connection(conn):
-    req = conn.recv(1000)
-    request_type = req.split('\r\n')[0].split(' ')[0]
+    request = conn.recv(1000)
+    request_type = request.split()[0]
     if request_type == 'GET':
-        path = req.split('\r\n')[0].split(' ')[1]
+        path = request.split()[1]
         get_request(conn, path)
     elif request_type == 'POST':
         post_request(conn)

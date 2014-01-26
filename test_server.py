@@ -1,5 +1,11 @@
 import server
 
+# These are the global test variables
+header = 'HTTP/1.0 200 OK\r\n' + \
+         'Content-type: text/html\r\n\r\n' + \
+         '<html><body>\r\n'
+footer = '</body></html>\r\n'
+
 class FakeConnection(object):
     """
     A fake connection class that mimics a real TCP socket for the purpose
@@ -25,62 +31,55 @@ class FakeConnection(object):
     def close(self):
         self.is_closed = True
 
-# Test a basic GET call for the root.
+# Test a GET call for the root
 def test_handle_connection_root():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
-                      '<html><body>' + \
-                      '<h1>Hello World!</h1>' + \
-                      'This is leflerja\'s Web server<br>' + \
-                      '<a href=\'/content\'>Content</a><br>' + \
-                      '<a href=\'/files\'>Files</a><br>' + \
-                      '<a href=\'/images\'>Images</a>' + \
-                      '</body></html>'
+    root_return = '<h1>Hello World!</h1>\r\n' + \
+                  "This is leflerja's Web server<br>\r\n" + \
+                  "<a href='/content'>Content</a><br>\r\n" + \
+                  "<a href='/files'>Files</a><br>\r\n" + \
+                  "<a href='/images'>Images</a><br>\r\n" + \
+                  "<a href='/form'>Form</a>\r\n"
+    expected_return = header + root_return + footer
 
     server.handle_connection(conn)
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-# Test a GET call for the root.
+# Test a GET call for the content page
 def test_handle_connection_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
-                      '<html><body>' + \
-                      '<h1>Content Page</h1>' + \
-                      'This is the content page' + \
-                      '</body></html>'
+    content_return = '<h1>Content Page</h1>\r\n' + \
+                     'This is the content page\r\n'
+    expected_return = header + content_return + footer
 
     server.handle_connection(conn)
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-# Test a GET call for file.
+# Test a GET call for the file page
 def test_handle_connection_file():
     conn = FakeConnection("GET /files HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
-                      '<html><body>' + \
-                      '<h1>Files Page</h1>' + \
-                      'This is the files page' + \
-                      '</body></html>'
+    file_return = '<h1>Files Page</h1>\r\n' + \
+                  'This is the files page\r\n'
+    expected_return = header + file_return + footer
 
     server.handle_connection(conn)
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-# Test a GET call for image.
-def test_handle_connection_image():
+# Test a GET call for the images page
+def test_handle_connection_images():
     conn = FakeConnection("GET /images HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n\r\n' + \
-                      '<html><body>' + \
-                      '<h1>Images Page</h1>' + \
-                      'This is the images page' + \
-                      '</body></html>'
+    images_return = '<h1>Images Page</h1>\r\n' + \
+                    'This is the images page\r\n'
+    expected_return = header + images_return + footer
 
     server.handle_connection(conn)
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-# Test a POST call.
+# Test a GET call for the form page
+
+# Test a GET call for the submit page
+
+# Test a POST call
 def test_post():
     conn = FakeConnection("POST / HTTP/1.1\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n\r\n' + \
