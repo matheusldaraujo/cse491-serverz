@@ -14,3 +14,8 @@
 
  * server.py: Added homework 2 code
  * test_server.py: Added tests for homework 2
+
+2014-01-26  Jason Lefler <leflerja@arctic.cse.msu.edu>
+
+ * server.py: Added homework 3 code
+ * test_server.py: Added tests for homework 3

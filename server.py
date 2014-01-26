@@ -2,6 +2,7 @@ import random
 import socket
 import time
 from urlparse import urlparse, parse_qs
+import urllib
 
 def request_index(conn, path):
     return '<h1>Hello World!</h1>\r\n' + \
@@ -44,8 +45,9 @@ def get_request(conn, path):
              '<html><body>\r\n'
     footer = '</body></html>\r\n'
 
+    # Not sure why I keep getting /favicon.ico...
     options = {'/'            : request_index,   \
-               '/favicon.ico' : request_index,   \ # Not sure why I get this request
+               '/favicon.ico' : request_index,   \
                '/content'     : request_content, \
                '/files'       : request_files,   \
                '/images'      : request_images,  \

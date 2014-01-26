@@ -32,7 +32,7 @@ class FakeConnection(object):
         self.is_closed = True
 
 # Test a GET call for the root
-def test_handle_connection_root():
+def test_get_root():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
     root_return = '<h1>Hello World!</h1>\r\n' + \
                   "This is leflerja's Web server<br>\r\n" + \
@@ -46,7 +46,7 @@ def test_handle_connection_root():
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 # Test a GET call for the content page
-def test_handle_connection_content():
+def test_get_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
     content_return = '<h1>Content Page</h1>\r\n' + \
                      'This is the content page\r\n'
@@ -56,7 +56,7 @@ def test_handle_connection_content():
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 # Test a GET call for the file page
-def test_handle_connection_file():
+def test_get_file():
     conn = FakeConnection("GET /files HTTP/1.0\r\n\r\n")
     file_return = '<h1>Files Page</h1>\r\n' + \
                   'This is the files page\r\n'
@@ -66,7 +66,7 @@ def test_handle_connection_file():
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 # Test a GET call for the images page
-def test_handle_connection_images():
+def test_get_images():
     conn = FakeConnection("GET /images HTTP/1.0\r\n\r\n")
     images_return = '<h1>Images Page</h1>\r\n' + \
                     'This is the images page\r\n'
@@ -76,8 +76,29 @@ def test_handle_connection_images():
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 # Test a GET call for the form page
+def test_get_form():
+    conn = FakeConnection("GET /form HTTP/1.0\r\n\r\n")
+    form_return = '<h1>Form Page</h1>\r\n' + \
+                  '<form action=\'/submit\' method=\'GET\'>\r\n' + \
+                  'First Name: <input type=\'text\' name=\'firstname\'><br>\r\n' + \
+                  'Last Name: <input type=\'text\' name=\'lastname\'><br>\r\n' + \
+                  '<input type=\'submit\' name=\'submit\'>\r\n' + \
+                  '</form>\r\n'
+    expected_return = header + form_return + footer
+
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 # Test a GET call for the submit page
+def test_get_submit():
+    conn = FakeConnection("GET /submit?firstname=Jason&lastname=Lefler&submit=Submit HTTP/1.0\r\n\r\n")
+    submit_return = '<h1>Submit Page</h1>\r\n' + \
+                    'Hello Jason Lefler'
+    expected_return = header + submit_return + footer
+
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+     
 
 # Test a POST call
 def test_post():
