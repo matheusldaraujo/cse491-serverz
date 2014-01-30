@@ -127,7 +127,7 @@ def test_post_form():
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
 # Test a POST call for the submit page
-def test_get_submit():
+def test_post_submit():
     conn = FakeConnection("POST /submit HTTP/1.0\r\nHost: mse.edu\r\n\r\nfirstname=Jason&lastname=Lefler")
     submit_return = '<h1>Submit Page</h1>\r\n' + \
                     'Hello Jason Lefler'
