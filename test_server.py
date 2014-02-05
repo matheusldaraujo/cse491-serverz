@@ -35,11 +35,13 @@ Content-Type: text/html
 <a href="/content">Content</a>
 <a href="/file">File</a>
 <a href="/image">image</a>
+<a href="/form">Form</a>
                   '''
 
     server.handle_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
 
 def test_handle_connection_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
@@ -79,6 +81,29 @@ def test_handle_connection_post():
     conn = FakeConnection("POST / HTTP/1.0\rn\rn")
     expected_return = "Hello World"
     server.handle_connection(conn)
-    assert conn.sent == expected_return, "Got: %s" % (repr(conn,sent),)
+    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
 
+#-----------
+#Homework 3
+#-----------
+def test_handle_connection_get_form():
+    conn = FakeConnection("GET /submit?firstname=joao&lastname=da+silva HTTP/1.0\rn\rn")
+    expected_return = '''
+HTTP/1.0 200 OK
+Content-Type: text/html
 
+Hello Mr. joao da silva
+                  '''
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+def test_handle_connection_post_form():
+    conn = FakeConnection("POST /submit HTTP/1.0\r\nHost: w3schools.com\r\n\r\nfirstname=Joao&lastname=da Silva")
+    expected_return = '''
+HTTP/1.0 200 OK
+Content-Type: text/html
+
+Hello Mr. Joao da Silva
+                  '''
+    server.handle_connection(conn)
+    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
