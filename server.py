@@ -4,76 +4,106 @@ import random
 import socket
 import time
 from urlparse import urlparse, parse_qs
+import cgi
+import StringIO
+import jinja2
+
+# this sets up jinja2 to load templates from the 'templates' directory
+loader = jinja2.FileSystemLoader('./templates')
+env = jinja2.Environment(loader=loader)
 
 #Page Methods
 def page_index(conn):
-    conn.send('''
-HTTP/1.0 200 OK
-Content-Type: text/html
+    template = env.get_template("index.html")
+    http_response =   "HTTP/1.0 200 OK\r\n\
+                      Content-Type: text/html\r\n\r\n"
+    http_response += template.render(vars={})
+    conn.send(http_response)
 
-<a href="/content">Content</a>
-<a href="/file">File</a>
-<a href="/image">image</a>
-<a href="/form">Form</a>
-                  ''')
 def page_file(conn):
-    conn.send('''
-HTTP/1.0 200 OK
-Content-Type: text/html
+    template = env.get_template("file.html")
+    http_response =   "HTTP/1.0 200 OK\r\n\
+                       Content-Type: text/html\r\n\r\n"
+    http_response += template.render(vars={})
+    conn.send(http_response)
 
-File's Content
-                  ''')
 def page_image(conn):
-    conn.send('''
-HTTP/1.0 200 OK
-Content-Type: text/html
+    template = env.get_template("image.html")
+    http_response =   "HTTP/1.0 200 OK\r\n\
+                       Content-Type: text/html\r\n\r\n"
+    http_response += template.render(vars={})
+    conn.send(http_response)
 
-Image's Content
-                  ''')
 def page_content(conn):
-    conn.send('''
-HTTP/1.0 200 OK
-Content-Type: text/html
+    template = env.get_template("content.html")
+    http_response =   "HTTP/1.0 200 OK\r\n\
+                       Content-Type: text/html\r\n\r\n"
+    http_response += template.render(vars={})
+    conn.send(http_response)
 
-Content's Content
-                  ''')
 def page_form(conn):
-    conn.send('''
-HTTP/1.0 200 OK
-Content-Type: text/html
-
-<form action='/submit' method='POST'>
-<input type='text' name='firstname'>
-<input type='text' name='lastname'>
-<input type="submit" value="Submit">
-</form>
-                  ''')
+    template = env.get_template("form.html")
+    http_response =   "HTTP/1.0 200 OK\r\n\
+                       Content-Type: text/html\r\n\r\n"
+    http_response += template.render(vars={})
+    conn.send(http_response)
 
 def action_submit(conn,params):
-    conn.send('''
-HTTP/1.0 200 OK
-Content-Type: text/html
+    template = env.get_template("submit.html")
+    http_response =   "HTTP/1.0 200 OK\r\n\
+                       Content-Type: text/html\r\n\r\n"
 
-Hello Mr. %s %s
-                  ''' % (params["firstname"][0], params["lastname"][0]))
+    vars = {"firstname":params["firstname"], "lastname":params["lastname"]}
+    http_response += template.render(vars)
+    conn.send(http_response)
+
+def page_404(conn,params):
+    template = env.get_template("404.html")
+    http_response =   "HTTP/1.0 200 OK\r\n\
+                       Content-Type: text/html\r\n\r\n"
+    http_response += template.render(vars={})
+    conn.send(http_response)
 
 #HTTP Process Rquest
 def handle_post(received,conn):
     #Parse the http
     headers = []
     body = ""
-    get_body = False
-   
-    for line in received.split("\r\n"):
-        if get_body:
-            body = line
-            continue
-        if line == "":
-            get_body = True
-        headers.append(line)
+    get_content = False
     
+    requestIO = StringIO.StringIO()
+    headers_dict = {}
+    
+    
+    #Get headers before break line than get body message
+    for line in received.split("\r\n"):
+        if line == "":
+            get_content = True
+        
+        elif get_content:
+            requestIO.write(line)
+            continue        
+        
+        else:
+            #Header has ':'
+            if ":" in line:
+                #Get header
+                key = line.split(":")[0]
+                val = line.split(":")[1][1:]
+                headers_dict[key] = val
+    
+    requestIO.seek(0)
+    environ = dict(REQUEST_METHOD = 'POST')
+    form = cgi.FieldStorage(fp = requestIO, headers=headers_dict, environ=environ)
+
+    #Create params like dictionary to be the same as GET
+    params = {}
+    for key in form.keys():
+        params[key] = form[key].value
+
+    #Get Path
     path = received.split(" ")[1]
-    params = parse_qs(body)
+ 
     #Process for each path
     if path == "/submit":
        action_submit(conn,params)
@@ -92,20 +122,36 @@ def handle_get(path,conn):
     #Process for each path
     if path == "/":
         page_index(conn)
-    if path == "/content":
+    elif path == "/content":
         page_content(conn)
-    if path == "/file":
+    elif path == "/file":
         page_file(conn)
-    if path == "/image":
+    elif path == "/image":
         page_image(conn)
-    if path == "/form":
+    elif path == "/form":
         page_form(conn)
-    if path == "/submit":
+    elif path == "/submit":
         action_submit(conn,params)
+    else:
+        page_404(conn,params)
         
 
 def handle_connection(conn):
-    received = conn.recv(1000)
+    receivedI = StringIO.StringIO()
+    #Set socket to hangs when stops to receive data    
+    try:
+        while True:
+            receivedI.write(conn.recv(1))
+            conn.setblocking(0)
+    except Exception as error:
+        #Check if it is the expected error, if not raise it again
+        if error.args[0] == 11: #error.errno == 11 change to args[0] to work in test either
+            pass
+        else:
+            raise(error)
+
+    received = receivedI.getvalue()
+
     path = received.split(" ")[1]
     mode = received.split(" ")[0]
     if mode == "POST":
@@ -127,6 +173,7 @@ def handle_connection(conn):
 
 def main():
     s = socket.socket()         # Create a socket object
+
     host = socket.getfqdn() # Get local machine name
     port = random.randint(8000, 9999)
 #    port = 8080
@@ -138,6 +185,7 @@ def main():
     s.listen(5)                 # Now wait for client connection.
 
     print 'Entering infinite loop; hit CTRL-C to exit'
+
     while True:
         # Establish connection with client.
 

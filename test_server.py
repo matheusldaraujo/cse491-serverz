@@ -25,56 +25,53 @@ class FakeConnection(object):
     def close(self):
         self.is_closed = True
 
+    def setblocking(self,n):
+        if self.to_recv == "":
+            raise Exception(11,"FakeConnection setblocking","erro")
+
+    def check_words_in_response(self,list_words):
+        response = self.sent
+        for word in list_words:
+            if not word in response:
+                return False
+        return True
+
 # Test a basic GET call.
 def test_handle_connection():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
-    expected_return = '''
-HTTP/1.0 200 OK
-Content-Type: text/html
-
-<a href="/content">Content</a>
-<a href="/file">File</a>
-<a href="/image">image</a>
-<a href="/form">Form</a>
-                  '''
-
+    expected_return = ["200","href","Content","File","Form"]
     server.handle_connection(conn)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
 
 
 def test_handle_connection_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
-    expected_return = '''
-HTTP/1.0 200 OK
-Content-Type: text/html
-
-Content's Content
-                  '''
+    expected_return = ["200","Content page"]
     server.handle_connection(conn)
-    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
 
 def test_handle_connection_file():
     conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
-    expected_return = '''
-HTTP/1.0 200 OK
-Content-Type: text/html
-
-File's Content
-                  '''
+    expected_return = ["200","File's Content"]
     server.handle_connection(conn)
-    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
 
 def test_handle_connection_image():
     conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
-    expected_return = '''
-HTTP/1.0 200 OK
-Content-Type: text/html
-
-Image's Content
-                  '''
+    expected_return = ["200","Image's Content"]
     server.handle_connection(conn)
-    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_form():
+    conn = FakeConnection("GET /form HTTP/1.0\r\n\r\n")
+    expected_return = ["200","input","submit","firstname"]
+    server.handle_connection(conn)
+
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
 
 
 def test_handle_connection_post():
@@ -86,24 +83,33 @@ def test_handle_connection_post():
 #-----------
 #Homework 3
 #-----------
-def test_handle_connection_get_form():
+
+def test_handle_connection_get_submit():
     conn = FakeConnection("GET /submit?firstname=joao&lastname=da+silva HTTP/1.0\rn\rn")
-    expected_return = '''
-HTTP/1.0 200 OK
-Content-Type: text/html
-
-Hello Mr. joao da silva
-                  '''
+    expected_return = ["200","joao","silva"]
     server.handle_connection(conn)
-    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
 
-def test_handle_connection_post_form():
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_post_submit():
     conn = FakeConnection("POST /submit HTTP/1.0\r\nHost: w3schools.com\r\n\r\nfirstname=Joao&lastname=da Silva")
-    expected_return = '''
-HTTP/1.0 200 OK
-Content-Type: text/html
-
-Hello Mr. Joao da Silva
-                  '''
+    expected_return = ["200","Joao","Silva"]
     server.handle_connection(conn)
-    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
+
+#-----------
+#Homework 4
+#-----------
+def test_handle_connection_404():
+    conn = FakeConnection("GET /sadasdadad HTTP/1.0\r\n\r\n")
+    expected_return = ["200","404"]
+    server.handle_connection(conn)
+
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
+
+    conn = FakeConnection("GET /xzcasdq HTTP/1.0\r\n\r\n")
+    expected_return = ["200","404"]
+    server.handle_connection(conn)
+
+    assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
