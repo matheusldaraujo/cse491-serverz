@@ -70,7 +70,6 @@ def handle_connection(conn):
             submit(conn, parsed_query['firstname'][0],
                          parsed_query['lastname'][0])
 
-
     conn.close()
 
 def main():
@@ -83,7 +82,7 @@ def main():
     print 'The Web server URL for this would be http://%s:%d/' % (host, port)
 
     s.listen(5)                 # Now wait for client connection.
-    
+ 
 
     print 'Entering infinite loop; hit CTRL-C to exit'
     while True:
