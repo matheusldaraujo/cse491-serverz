@@ -2,179 +2,88 @@
 # @john3209 I reviewed this, it looks great
 import random
 import socket
-import time
-from urlparse import urlparse, parse_qs
-import cgi
 import StringIO
-import jinja2
+from app import make_app
+from urlparse import urlparse
 
-# this sets up jinja2 to load templates from the 'templates' directory
-loader = jinja2.FileSystemLoader('./templates')
-env = jinja2.Environment(loader=loader)
-
-#Page Methods
-def page_index(conn):
-    template = env.get_template("index.html")
-    http_response =   "HTTP/1.0 200 OK\r\n\
-                      Content-Type: text/html\r\n\r\n"
-    http_response += template.render(vars={})
-    conn.send(http_response)
-
-def page_file(conn):
-    template = env.get_template("file.html")
-    http_response =   "HTTP/1.0 200 OK\r\n\
-                       Content-Type: text/html\r\n\r\n"
-    http_response += template.render(vars={})
-    conn.send(http_response)
-
-def page_image(conn):
-    template = env.get_template("image.html")
-    http_response =   "HTTP/1.0 200 OK\r\n\
-                       Content-Type: text/html\r\n\r\n"
-    http_response += template.render(vars={})
-    conn.send(http_response)
-
-def page_content(conn):
-    template = env.get_template("content.html")
-    http_response =   "HTTP/1.0 200 OK\r\n\
-                       Content-Type: text/html\r\n\r\n"
-    http_response += template.render(vars={})
-    conn.send(http_response)
-
-def page_form(conn):
-    template = env.get_template("form.html")
-    http_response =   "HTTP/1.0 200 OK\r\n\
-                       Content-Type: text/html\r\n\r\n"
-    http_response += template.render(vars={})
-    conn.send(http_response)
-
-def action_submit(conn,params):
-    template = env.get_template("submit.html")
-    http_response =   "HTTP/1.0 200 OK\r\n\
-                       Content-Type: text/html\r\n\r\n"
-
-    vars = {"firstname":params["firstname"], "lastname":params["lastname"]}
-    http_response += template.render(vars)
-    conn.send(http_response)
-
-def page_404(conn,params):
-    template = env.get_template("404.html")
-    http_response =   "HTTP/1.0 200 OK\r\n\
-                       Content-Type: text/html\r\n\r\n"
-    http_response += template.render(vars={})
-    conn.send(http_response)
-
-#HTTP Process Rquest
-def handle_post(received,conn):
-    #Parse the http
-    headers = []
-    body = ""
-    get_content = False
-    
-    requestIO = StringIO.StringIO()
-    headers_dict = {}
-    
-    
-    #Get headers before break line than get body message
-    for line in received.split("\r\n"):
-        if line == "":
-            get_content = True
-        
-        elif get_content:
-            requestIO.write(line)
-            continue        
-        
-        else:
-            #Header has ':'
-            if ":" in line:
-                #Get header
-                key = line.split(":")[0]
-                val = line.split(":")[1][1:]
-                headers_dict[key] = val
-    
-    requestIO.seek(0)
-    environ = dict(REQUEST_METHOD = 'POST')
-    form = cgi.FieldStorage(fp = requestIO, headers=headers_dict, environ=environ)
-
-    #Create params like dictionary to be the same as GET
-    params = {}
-    for key in form.keys():
-        params[key] = form[key].value
-
-    #Get Path
-    path = received.split(" ")[1]
- 
-    #Process for each path
-    if path == "/submit":
-       action_submit(conn,params)
-
-    #Default for any path no specific
-    else:
-        conn.send("Hello World")
-    
-
-def handle_get(path,conn):
-    #Parse the http
-    parse = urlparse(path)
-    path = parse.path
-    params = parse_qs(parse.query)
-
-    #Process for each path
-    if path == "/":
-        page_index(conn)
-    elif path == "/content":
-        page_content(conn)
-    elif path == "/file":
-        page_file(conn)
-    elif path == "/image":
-        page_image(conn)
-    elif path == "/form":
-        page_form(conn)
-    elif path == "/submit":
-        action_submit(conn,params)
-    else:
-        page_404(conn,params)
-        
 
 def handle_connection(conn):
     receivedI = StringIO.StringIO()
-    #Set socket to hangs when stops to receive data    
+    # Set socket to hangs when stops to receive data
     try:
         while True:
             receivedI.write(conn.recv(1))
             conn.setblocking(0)
     except Exception as error:
         #Check if it is the expected error, if not raise it again
-        if error.args[0] == 11: #error.errno == 11 change to args[0] to work in test either
+        #error.errno == 11 change to args[0] to work in test either
+        if error.args[0] == 11:
             pass
         else:
             raise(error)
 
     received = receivedI.getvalue()
 
-    path = received.split(" ")[1]
-    mode = received.split(" ")[0]
+    headersHTTP = map(lambda x: x.split(" "), received.split("\r\n"))
+    headerDic = {}
+    for header in headersHTTP:
+        if header[0] != "" and len(header) >= 2: #Dont get body from post
+            headerDic[header[0].upper().replace(":", "").replace("-", "_")] = header[1]
+    
+    url = headersHTTP[0][1]
+    path = urlparse(url)[2]
+    query = urlparse(url)[4]
+    mode = headersHTTP[0][0]
+
+    environ = {}
+    
     if mode == "POST":
-        handle_post(received,conn)
+        #Get POST body
+
+        beginBody = received.find("\r\n\r\n") + len ("\r\n\r\n")
+        endBody = beginBody + int(headerDic['CONTENT_LENGTH'])
+        body = received[beginBody : endBody]
+        
+        environ['REQUEST_METHOD'] = mode
+        environ['PATH_INFO'] = path
+        environ['QUERY_STRING'] = query
+        environ['CONTENT_TYPE'] = headerDic['CONTENT_TYPE']
+        environ['CONTENT_LENGTH'] = int(headerDic['CONTENT_LENGTH'])
+        environ['SCRIPT_NAME'] = ''
+        environ['wsgi.input'] = StringIO.StringIO(body)
+        
+
     if mode == "GET":
-        handle_get(path,conn)
+        environ['REQUEST_METHOD'] = mode
+        environ['PATH_INFO'] = path
+        environ['QUERY_STRING'] = query
+        environ['CONTENT_TYPE'] = ''
+        environ['CONTENT_LENGTH'] = 0
+        environ['SCRIPT_NAME'] = ''
+        environ['wsgi.input'] = ''
 
-#    else:
-#        conn.send('''
-#HTTP/1.0 200 OK
-#Content-Type: text/html
-#
-#<h1> Hello, world! </h1>
-#This is araujoma's Web server </br>
-#    ''')
+    new_app = make_app()
+
+    def start_response(status, response_headers):
+        conn.send('HTTP/1.0 ')
+        conn.send(status)
+        conn.send('\r\n')
+        for pair in response_headers:
+            key, header = pair
+            conn.send(key + ': ' + header + '\r\n')
+        conn.send('\r\n')
+
+    result = new_app(environ, start_response)
+    for data in result:
+        conn.send(data)
+
     conn.close()
-
 
 
 def main():
     s = socket.socket()         # Create a socket object
 
-    host = socket.getfqdn() # Get local machine name
+    host = socket.getfqdn()  # Get local machine name
     port = random.randint(8000, 9999)
 #    port = 8080
     s.bind((host, port))        # Bind to the port
@@ -189,9 +98,8 @@ def main():
     while True:
         # Establish connection with client.
 
-        conn, (client_ip,clienti_port) = s.accept()
+        conn, (client_ip, clienti_port) = s.accept()
         handle_connection(conn)
 
 if __name__ == "__main__":
     main()
-

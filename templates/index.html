@@ -1,8 +1,16 @@
-<html>
-<body>
+{% extends "base.html" %}
+{% block head %}
+<head>
+	<title>
+	Index
+	</title>
+</head>
+{% endblock %}
+
+{% block body %}
 <a href="/content">Content</a>
 <a href="/file">File</a>
 <a href="/image">image</a>
 <a href="/form">Form</a>
 </body>
-</html>
+{% endblock %}

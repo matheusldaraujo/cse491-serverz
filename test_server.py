@@ -75,10 +75,12 @@ def test_handle_connection_form():
 
 
 def test_handle_connection_post():
-    conn = FakeConnection("POST / HTTP/1.0\rn\rn")
-    expected_return = "Hello World"
+    conn = FakeConnection("POST /submit HTTP/1.0\r\n" + \
+                          "Content-Length: "+ str(len("firstname=Joao&lastname=da Silva")) + "\r\n" + \
+                          "Content-Type: application/x-www-form-urlencoded\r\n\r\n" + \
+                          "firstname=Joao&lastname=da Silva")
     server.handle_connection(conn)
-    assert conn.sent == expected_return, "Got: %s" % (repr(conn.sent),)
+    assert 'HTTP/1.0 200 OK' in conn.sent, "Got: %s" % (repr(conn.sent),)
 
 #-----------
 #Homework 3
@@ -92,8 +94,8 @@ def test_handle_connection_get_submit():
     assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)
 
 def test_handle_connection_post_submit():
-    conn = FakeConnection("POST /submit HTTP/1.0\r\nHost: w3schools.com\r\n\r\nfirstname=Joao&lastname=da Silva")
-    expected_return = ["200","Joao","Silva"]
+    conn = FakeConnection("POST /submit HTTP/1.0\r\nHost: w3schools.com\r\nConnection: keep-alive\r\nContent-Length: " + str(len("firstname=Joao&lastname=da Silva")) + "\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nOrigin: http://bota:8918\r\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.114 Safari/537.36\r\nContent-Type: application/x-www-form-urlencoded\r\nReferer: http://bota:8918/form\r\nAccept-Encoding: gzip,deflate,sdch\r\nAccept-Language: en-US,en;q=0.8,pt;q=0.6\r\n\r\nfirstname=Luis&lastname=da Silva")
+    expected_return = ["200","Luis","Silva"]
     server.handle_connection(conn)
 
     assert conn.check_words_in_response(expected_return), 'Got: %s' % (repr(conn.sent),)

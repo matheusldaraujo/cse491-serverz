@@ -1,9 +1,17 @@
-<html>
-<body>
+{% extends "base.html" %}
+{% block head %}
+<head>
+	<title>
+	Form
+	</title>
+</head>
+{% endblock %}
+
+{% block body %}
 <form action='/submit' method='POST'>
 <input type='text' name='firstname'>
 <input type='text' name='lastname'>
 <input type="submit" value="Submit">
 </form>
 </body>
-</html>
+{% endblock %}
