@@ -5,11 +5,19 @@ import socket
 import StringIO
 from app import make_app
 from urlparse import urlparse
-from wsgiref.validate import validator
 import sys
 
+### here is the code needed to create a WSGI application interface to
+### a Quixote app:
 
-def handle_connection(conn,host,port):
+import quixote
+from quixote.demo import create_publisher
+#from quixote.demo.mini_demo import create_publisher
+#from quixote.demo.altdemo import create_publisher
+
+p = create_publisher()
+
+def handle_connection(conn, host, port):
     receivedI = StringIO.StringIO()
     # Set socket to hangs when stops to receive data
     try:
@@ -79,8 +87,9 @@ def handle_connection(conn,host,port):
         environ['wsgi.multiprocess'] = True
         environ['wsgi.run_once'] = True
         environ['wsgi.url_scheme'] = "http"
-
-    new_app = validator(make_app())
+    
+    p.is_thread_safe = True   
+    new_app = wsgi_app = quixote.get_wsgi_app()
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0 ')

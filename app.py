@@ -1,69 +1,72 @@
 #!/usr/bin/env python
 # @john3209 I reviewed this, it looks great
-import random
-import socket
-import time
-from urlparse import urlparse, parse_qs
 import cgi
-import StringIO
 import jinja2
 
 # this sets up jinja2 to load templates from the 'templates' directory
 loader = jinja2.FileSystemLoader('./templates')
 env = jinja2.Environment(loader=loader)
 
+
 class MyApp(object):
+
     def __call__(self, environ, start_response):
         options = {'/'            : self.page_index,
                    '/content'     : self.page_content,
-                   '/file'       : self.page_file,
-                   '/image'      : self.page_image,
+                   '/file'        : self.page_file,
+                   '/image'       : self.page_image,
                    '/form'        : self.page_form,
                    '/submit'      : self.action_submit   }
 
         path = environ['PATH_INFO']
         page = options.get(path)
         if page is None:
-            return self.page_404(environ, start_response)
-        return page(environ, start_response)
+            return [self.page_404(environ, start_response)]
+        return [page(environ, start_response)]
     
     def __init__(self):
-        self.http_header_default = [('Content-type', 'text/html')]
+        self.type_html = [('Content-type', 'text/html')]
+        self.type_image = [('Content-type', 'image/png')]
+        self.type_text = [('Content-type', 'text/plain')]
         self.status = '200 OK'
+
+    def get_file(self,filename):
+        pfile = open(filename,"rb")
+        data = pfile.read()
+        pfile.close()
+        return data
 
     #Page Methods
     def page_index(self,environ,start_response):
-        start_response(self.status, self.http_header_default)
+        start_response(self.status, self.type_html)
         template = env.get_template("index.html")
         http_response = template.render(vars={})
         return str(http_response)
 
     def page_file(self,environ,start_response):
-        start_response(self.status, self.http_header_default)
-        template = env.get_template("file.html")
-        http_response = template.render(vars={})
+        start_response(self.status, self.type_text)
+        http_response = self.get_file("test_file.txt")
         return str(http_response)
 
     def page_image(self,environ,start_response):
-        start_response(self.status, self.http_header_default)
-        template = env.get_template("image.html")
-        http_response = template.render(vars={})
+        start_response(self.status, self.type_image)
+        http_response = self.get_file("test_image.jpg")
         return str(http_response)
 
     def page_content(self,environ,start_response):
-        start_response(self.status, self.http_header_default)
+        start_response(self.status, self.type_html)
         template = env.get_template("content.html")
         http_response = template.render(vars={})
         return str(http_response)
 
     def page_form(self,environ,start_response):
-        start_response(self.status, self.http_header_default)
+        start_response(self.status, self.type_html)
         template = env.get_template("form.html")
         http_response = template.render(vars={})
         return str(http_response)
 
     def action_submit(self,environ,start_response):
-        start_response(self.status, self.http_header_default)
+        start_response(self.status, self.type_html)
         template = env.get_template("submit.html")
         form = cgi.FieldStorage(fp=environ.get('wsgi.input',''), environ=environ)
         params = {}
@@ -78,7 +81,7 @@ class MyApp(object):
         return str(http_response)
 
     def page_404(self,environ,start_response):
-        start_response(self.status, self.http_header_default)
+        start_response(self.status, self.type_html)
         template = env.get_template("404.html")
         http_response = template.render(vars={})
         return str(http_response)
