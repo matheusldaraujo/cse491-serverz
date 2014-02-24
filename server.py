@@ -80,7 +80,8 @@ def handle_connection(conn,host,port):
         environ['wsgi.run_once'] = True
         environ['wsgi.url_scheme'] = "http"
 
-    new_app = validator(make_app())
+    #new_app = validator(make_app())
+    new_app = make_app()
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0 ')
