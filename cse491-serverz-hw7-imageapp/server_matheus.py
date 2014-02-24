@@ -3,21 +3,19 @@
 import random
 import socket
 import StringIO
-from app import make_app
+
 from urlparse import urlparse
+
 import sys
-
-### here is the code needed to create a WSGI application interface to
-### a Quixote app:
-
 import quixote
-#from quixote.demo import create_publisher
-#from quixote.demo.mini_demo import create_publisher
-from quixote.demo.altdemo import create_publisher
+import imageapp
 
-p = create_publisher()
+imageapp.setup()
 
-def handle_connection(conn, host, port):
+p = imageapp.create_publisher()
+wsgi_app = quixote.get_wsgi_app()
+
+def handle_connection(conn,host,port):
     received = conn.recv(1)
     
     if not received:
@@ -79,9 +77,8 @@ def handle_connection(conn, host, port):
         environ['wsgi.run_once'] = False
         environ['wsgi.url_scheme'] = "http"
         environ['HTTP_COOKIE'] = headerDic['COOKIE'] if headerDic.get('COOKIE') else ""
-    
-    p.is_thread_safe = True   
-    new_app = wsgi_app = quixote.get_wsgi_app()
+
+    #new_app = validator(make_app())
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0 ')
@@ -92,7 +89,7 @@ def handle_connection(conn, host, port):
             conn.send(key + ': ' + header + '\r\n')
         conn.send('\r\n')
 
-    result = new_app(environ, start_response)
+    result = wsgi_app(environ, start_response)
     for data in result:
         conn.send(data)
 

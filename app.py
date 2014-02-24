@@ -19,6 +19,7 @@ class MyApp(object):
                    '/submit'      : self.action_submit   }
 
         path = environ['PATH_INFO']
+        
         page = options.get(path)
         if page is None:
             return [self.page_404(environ, start_response)]

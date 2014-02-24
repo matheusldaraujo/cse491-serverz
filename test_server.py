@@ -91,7 +91,7 @@ def test_handle_connection_post():
 #-----------
 
 def test_handle_connection_get_submit():
-    conn = FakeConnection("GET /submit?firstname=joao&lastname=da+silva HTTP/1.0\rn\rn")
+    conn = FakeConnection("GET /submit?firstname=joao&lastname=da+silva HTTP/1.0\r\n\r\n")
     expected_return = ["200","joao","silva"]
     server.handle_connection(conn,host,port)
 

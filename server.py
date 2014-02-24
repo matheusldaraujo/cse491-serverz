@@ -10,41 +10,32 @@ import sys
 
 
 def handle_connection(conn,host,port):
-    receivedI = StringIO.StringIO()
-    # Set socket to hangs when stops to receive data
-    try:
-        while True:
-            receivedI.write(conn.recv(1))
-            conn.setblocking(0)
-    except Exception as error:
-        #Check if it is the expected error, if not raise it again
-        #error.errno == 11 change to args[0] to work in test either
-        if error.args[0] == 11:
-            pass
-        else:
-            raise(error)
+    received = conn.recv(1)
+    
+    if not received:
+        print 'Error, remote client closed connection without sending anything'
+        return
 
-    received = receivedI.getvalue()
+    while received[-4:] != '\r\n\r\n':
+        received += conn.recv(1)
 
     headersHTTP = map(lambda x: x.split(" "), received.split("\r\n"))
     headerDic = {}
     for header in headersHTTP:
         if header[0] != "" and len(header) >= 2: #Dont get body from post
-            headerDic[header[0].upper().replace(":", "").replace("-", "_")] = header[1]
-    
+            headerDic[header[0].upper().replace(":", "").replace("-", "_")] = " ".join(header[1:])
+
     url = headersHTTP[0][1]
     path = urlparse(url)[2]
     query = urlparse(url)[4]
     mode = headersHTTP[0][0]
-
     environ = {}
     
     if mode == "POST":
         #Get POST body
-
-        beginBody = received.find("\r\n\r\n") + len ("\r\n\r\n")
-        endBody = beginBody + int(headerDic['CONTENT_LENGTH'])
-        body = received[beginBody : endBody]
+        body = ""
+        while len(body) < int(headerDic['CONTENT_LENGTH']):
+            body += conn.recv(1)
         
         environ['REQUEST_METHOD'] = mode
         environ['PATH_INFO'] = path
@@ -57,12 +48,12 @@ def handle_connection(conn,host,port):
         environ['wsgi.input'] = StringIO.StringIO(body)
         environ['wsgi.version'] = (1, 0)
         environ['wsgi.errors'] = sys.stderr
-        environ['wsgi.multithread'] = True
-        environ['wsgi.multiprocess'] = True
-        environ['wsgi.run_once'] = True
+        environ['wsgi.multithread'] = False
+        environ['wsgi.multiprocess'] = False
+        environ['wsgi.run_once'] = False
         environ['wsgi.url_scheme'] = "http"
+        environ['HTTP_COOKIE'] = headerDic['COOKIE'] if headerDic.get('COOKIE') else ""
         
-
     if mode == "GET":
         environ['REQUEST_METHOD'] = mode
         environ['PATH_INFO'] = path
@@ -75,10 +66,11 @@ def handle_connection(conn,host,port):
         environ['wsgi.input'] = StringIO.StringIO("")
         environ['wsgi.version'] = (1, 0)
         environ['wsgi.errors'] = sys.stderr
-        environ['wsgi.multithread'] = True
-        environ['wsgi.multiprocess'] = True
-        environ['wsgi.run_once'] = True
+        environ['wsgi.multithread'] = False
+        environ['wsgi.multiprocess'] = False
+        environ['wsgi.run_once'] = False
         environ['wsgi.url_scheme'] = "http"
+        environ['HTTP_COOKIE'] = headerDic['COOKIE'] if headerDic.get('COOKIE') else ""
 
     #new_app = validator(make_app())
     new_app = make_app()
