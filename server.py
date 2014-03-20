@@ -17,17 +17,17 @@ import imageapp
 parser = argparse.ArgumentParser(description='HTTP server create at CSE491 class')
 parser.add_argument('--imageapp', help='Run imageapp WSGI app', action = "store_true", required = False)
 parser.add_argument('--quixote', help='Run quixote.demo.altdemo WSGI app', action = "store_true", required = False)
-parser.add_argument('--hw6', help='Run hw6 WSGI app', action = "store_true", required = False)
+parser.add_argument('--myapp', help='Run myapp WSGI app', action = "store_true", required = False)
 
 #Argument parser and checker
 args = parser.parse_args()
 if (args.imageapp and args.quixote) or \
-     (args.imageapp and args.hw6 ) or \
-     (args.quixote and args.hw6):
+     (args.imageapp and args.myapp ) or \
+     (args.quixote and args.myapp):
    print "More than 1 WSG1 argument"
    sys.exit()
 
-if not(args.imageapp or args.quixote or args.hw6):
+if not(args.imageapp or args.quixote or args.myapp):
     print "Which app do you want?"
     sys.exit()
 
@@ -103,7 +103,7 @@ def handle_connection(conn,host,port):
         environ['HTTP_COOKIE'] = headerDic['COOKIE'] if headerDic.get('COOKIE') else ""
 
     #Select WSGI app    
-    if args.hw6:
+    if args.myapp:
         new_app = validator(make_app())
 
     elif args.quixote or args.imageapp:
