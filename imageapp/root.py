@@ -1,7 +1,7 @@
 import quixote
 from quixote.directory import Directory, export, subdir
 
-from . import html, image
+from . import html, image, javascript
 
 class RootDirectory(Directory):
     _q_exports = []
@@ -38,3 +38,11 @@ class RootDirectory(Directory):
         response.set_content_type('image/png')
         img = image.get_latest_image()
         return img
+
+    @export(name='jquery.js')
+    def jquery(self):
+        return javascript.render("jquery-1.11.0.min.js")
+
+    @export(name='ajax_upload_image.js')
+    def ajax_upload(self):
+        return javascript.render("ajax_upload_image.js")
