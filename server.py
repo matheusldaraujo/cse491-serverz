@@ -7,7 +7,37 @@ from app import make_app
 from urlparse import urlparse
 from wsgiref.validate import validator
 import sys
+import argparse
+import quixote
 
+import imageapp
+
+
+
+parser = argparse.ArgumentParser(description='HTTP server create at CSE491 class')
+parser.add_argument('--imageapp', help='Run imageapp WSGI app', action = "store_true", required = False)
+parser.add_argument('--quixote', help='Run quixote.demo.altdemo WSGI app', action = "store_true", required = False)
+parser.add_argument('--hw6', help='Run hw6 WSGI app', action = "store_true", required = False)
+
+#Argument parser and checker
+args = parser.parse_args()
+if (args.imageapp and args.quixote) or \
+     (args.imageapp and args.hw6 ) or \
+     (args.quixote and args.hw6):
+   print "More than 1 WSG1 argument"
+   sys.exit()
+
+if not(args.imageapp or args.quixote or args.hw6):
+    print "Which app do you want?"
+    sys.exit()
+
+if args.quixote:
+    from quixote.demo.altdemo import create_publisher
+    p = create_publisher()
+
+if args.imageapp:
+    imageapp.setup()
+    p = imageapp.create_publisher()
 
 def handle_connection(conn,host,port):
     received = conn.recv(1)
@@ -72,8 +102,12 @@ def handle_connection(conn,host,port):
         environ['wsgi.url_scheme'] = "http"
         environ['HTTP_COOKIE'] = headerDic['COOKIE'] if headerDic.get('COOKIE') else ""
 
-    new_app = validator(make_app())
-    #new_app = make_app()
+    #Select WSGI app    
+    if args.hw6:
+        new_app = validator(make_app())
+
+    elif args.quixote or args.imageapp:
+        new_app = quixote.get_wsgi_app()
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0 ')
