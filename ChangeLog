@@ -25,3 +25,7 @@
 
 2014-03-28 Matheus Araujo
  * Homework 9
+ * Integrate the quotes app into server.py, so that it can be run with ‘-A quotes’.
+ * Integrate the chats app into server.py, so that it can be run with ‘-A chat’. 
+ * Time of each message is displayed in the chat window
+ 

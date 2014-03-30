@@ -11,7 +11,8 @@ import argparse
 import quixote
 
 import imageapp
-
+from quotes.apps import QuotesApp
+from chat.apps import ChatApp
 
 
 parser = argparse.ArgumentParser(description='HTTP server create at CSE491 class')
@@ -19,23 +20,19 @@ parser.add_argument('--imageapp', help='Run imageapp WSGI app', action = "store_
 parser.add_argument('--quixote', help='Run quixote.demo.altdemo WSGI app', action = "store_true", required = False)
 parser.add_argument('--myapp', help='Run myapp WSGI app', action = "store_true", required = False)
 
-#Argument parser and checker
+
+parser.add_argument('-A', metavar='App', type=str, nargs=1, default=False, \
+            choices=['quixote','myapp', 'imageapp','quotes', 'chat'], help='Select which app to run', dest='app')
+
 args = parser.parse_args()
-if (args.imageapp and args.quixote) or \
-     (args.imageapp and args.myapp ) or \
-     (args.quixote and args.myapp):
-   print "More than 1 WSG1 argument"
-   sys.exit()
 
-if not(args.imageapp or args.quixote or args.myapp):
-    print "Which app do you want?"
-    sys.exit()
 
-if args.quixote:
+
+if args.quixote or args.app[0] == "quixote":
     from quixote.demo.altdemo import create_publisher
     p = create_publisher()
 
-if args.imageapp:
+if args.imageapp or args.app[0] == "imageapp":
     imageapp.setup()
     p = imageapp.create_publisher()
 
@@ -52,7 +49,7 @@ def handle_connection(conn,host,port):
     headersHTTP = map(lambda x: x.split(" "), received.split("\r\n"))
     headerDic = {}
     for header in headersHTTP:
-        if header[0] != "" and len(header) >= 2: #Dont get body from post
+        if header[0] != "" and len(header) >= 2:  #Dont get body from post
             headerDic[header[0].upper().replace(":", "").replace("-", "_")] = " ".join(header[1:])
 
     url = headersHTTP[0][1]
@@ -101,13 +98,21 @@ def handle_connection(conn,host,port):
         environ['wsgi.run_once'] = False
         environ['wsgi.url_scheme'] = "http"
         environ['HTTP_COOKIE'] = headerDic['COOKIE'] if headerDic.get('COOKIE') else ""
-
+    
+    
     #Select WSGI app    
-    if args.myapp:
+    if args.myapp or args.app[0] == "myapp":
         new_app = validator(make_app())
 
-    elif args.quixote or args.imageapp:
+    elif args.quixote or args.imageapp or args.app[0] == "quixote" or args.app[0] == "imageapp":
         new_app = quixote.get_wsgi_app()
+
+    elif args.app[0] == "quotes":
+        new_app = QuotesApp('./quotes/quotes.txt', './quotes/html')
+
+    elif args.app[0] == "chat":
+        new_app = ChatApp('./chat/html')
+
 
     def start_response(status, response_headers):
         conn.send('HTTP/1.0 ')
