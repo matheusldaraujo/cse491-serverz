@@ -22,11 +22,13 @@ parser.add_argument('--myapp', help='Run myapp WSGI app', action = "store_true",
 
 
 parser.add_argument('-A', metavar='App', type=str, nargs=1, default=[""], \
-            choices=['quixote','myapp', 'imageapp','quotes', 'chat'], help='Select which app to run', dest='app')
+            choices=['quixote','myapp', 'imageapp','quotes', 'chat'], help="Select which app to run ['quixote','myapp', 'imageapp','quotes', 'chat']", dest='app')
 
 args = parser.parse_args()
-
-
+#Check arguments
+if args.app == [""]:
+    print "Please choose an app. --help to see choises"
+    sys.exit(0)
 
 if args.quixote or args.app[0] == "quixote":
     from quixote.demo.altdemo import create_publisher
