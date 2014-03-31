@@ -1,11 +1,25 @@
-<!DOCTYPE html>
-<html>
- <head>
-  <meta http-equiv="Content-Type" content="text/html">
-  <script src="jquery.js"></script>
- </head>
- <body>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Imageapp CSE491 App</title>
+ <style type="text/css">{% include "style.css" %}</style>
+ <script type="text/javascript" src="jquery.js"></script>
+</head>
+<body>
+<div id="header">
+<h1>Imageapp CSE491 App</h1>
+ <div id="menu">
+  <ul id="nav">
+   <li><a href="/">Home</a></li>
+   <li><a href="upload">Upload</a></li>
+   <li><a href="image">Show most recent image</a></li>
+  </ul>
+ </div>
+</div>
+<div id="content">
 {% block content %}
 {% endblock %}
- </body>
+</div>
+</body>
 </html>

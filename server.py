@@ -21,7 +21,7 @@ parser.add_argument('--quixote', help='Run quixote.demo.altdemo WSGI app', actio
 parser.add_argument('--myapp', help='Run myapp WSGI app', action = "store_true", required = False)
 
 
-parser.add_argument('-A', metavar='App', type=str, nargs=1, default=False, \
+parser.add_argument('-A', metavar='App', type=str, nargs=1, default=[""], \
             choices=['quixote','myapp', 'imageapp','quotes', 'chat'], help='Select which app to run', dest='app')
 
 args = parser.parse_args()

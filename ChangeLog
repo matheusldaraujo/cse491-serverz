@@ -21,11 +21,11 @@
  * Homework 8
 
 2014-03-19 Matheus Araujo
- * Project: Implement AJAX image upload with JQuery. (5 pts.)
+ * Project 12: Implement AJAX image upload with JQuery. (5 pts.)
 
 2014-03-28 Matheus Araujo
  * Homework 9
  * Integrate the quotes app into server.py, so that it can be run with ‘-A quotes’.
  * Integrate the chats app into server.py, so that it can be run with ‘-A chat’. 
  * Time of each message is displayed in the chat window
- 
+ * PROJECT 3: Swipe a template from oswd.org and put it in place on your imageapp server. (5 pts; browser_app)
