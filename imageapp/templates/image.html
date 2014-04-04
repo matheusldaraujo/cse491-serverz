@@ -2,7 +2,10 @@
 
 {% block content %}
 Here is your image:
-<p>
-<img width=40% src='image_raw?special=latest'/>
+	{% if has_image %}
+<img width=40% src='/get_image'/>
+{% else %}
+<h1>You have no images in the system.</h1>
+{% endif %}
 
 {% endblock %}

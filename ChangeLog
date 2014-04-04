@@ -29,3 +29,19 @@
  * Integrate the chats app into server.py, so that it can be run with ‘-A chat’. 
  * Time of each message is displayed in the chat window
  * PROJECT 3: Swipe a template from oswd.org and put it in place on your imageapp server. (5 pts; browser_app)
+
+2014-04-01 Matheus Araujo
+ * Homeowrk 10: Create branch
+ * PROJECT 9: Add username login via cookies and tracking of image by “owner” (the person who uploaded it). Allow the owner to delete it. (5 pts.; app_feature)
+ 	
+ 	To run: python server.py -A imageapp
+ 	
+ 	To use new functionality:
+ 		When load you will see that it no more load the image in the system
+ 		Click in "Upload" tab.
+ 		Insert a name and save it.
+ 		The you'll be allowed to upload an image
+
+ 		You can run in another browser and save another name and upload another
+ 		image. Both browser will work separately.
+ 		

@@ -1,0 +1,14 @@
+.ajax_done{
+	color: red;
+	font-size: 20px;
+}
+.error{
+	color: red;
+	background-color: #FFC3C3;;
+	font-size: 18px;
+}
+.success{
+	color: blue;
+	background-color: #C3C3FF;
+	font-size: 18px;
+}

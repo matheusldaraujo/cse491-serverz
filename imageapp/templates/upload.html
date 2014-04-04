@@ -3,13 +3,36 @@
 {% block content %}
 <h1>Ajax Upload Image:</h1>
 
-<form enctype='multipart/form-data' id="form" action='upload_receive' method='POST'>
+<div id="msg" style="display:none" >
+<h2 id="msg_text"></h2>
+</div>
+
+<div id="delete_option" style="display:none" >
+<a href="javascript: deleteMyImage(getCookie('img_id'));">Click to delete you image </a>
+</div>
+
+<input id="has_image" value="{{ has_image }}" type="hidden">
+
+<form>
+<div>
+	<h3>Please save your name first:</h3>
+	<label>Your name:</label> <input type="text" name="name" id="name_input" />
+	<input type="submit" name="save_name" value="Save" id="save" />
+</div>
+</form>
+
+
+<h4>Now upload your image:</h4>
+<form enctype='multipart/form-data' id="form1" action='upload_receive' method='POST'>
 Filename: <input type='file' id="file" name='file'><p>
+
 <input style="display:none" type='submit'>
 </form>
 
+
+
 <div id="success" style="display:none" >
-<h2>Ajax Upload Done</h2>
+<h2 class="ajax_done">Upload Done!</h2>
 </div>
 	<img id="image" src=""/>
 
