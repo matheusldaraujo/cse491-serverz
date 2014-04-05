@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block head %}
+<head>
+	<title>
+	Thumbnails
+	</title>
+</head>
+{% endblock %}
+
+{% block body %}
+<h1>List of thumbnails:</h1>
+    <ul id="thumbs">
+    {% for item in thumbs %}
+        <li><a href="{{ item }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+</body>
+{% endblock %}

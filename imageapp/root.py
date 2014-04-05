@@ -82,3 +82,7 @@ class RootDirectory(Directory):
     @export(name='style.css')
     def style_css_upload(self):
         return css.render("style.css")
+
+    @export(name='list_thumbs')                    # this makes it public.
+    def thumbs(self):
+        return html.render('thumbs.html', {"thumbs":image.get_thumbs_list()})

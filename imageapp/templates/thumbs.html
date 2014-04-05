@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Here is a list of thumbnails in the server:</h1>
+
+ <ul id="thumbsnails">
+    {% for item in thumbs %}
+        <li><img src="data:image/gif;base64,{{ thumbs[item] }}" /></li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}

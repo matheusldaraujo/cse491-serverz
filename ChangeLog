@@ -45,3 +45,15 @@
  		You can run in another browser and save another name and upload another
  		image. Both browser will work separately.
  		
+* PROJECT 22:Make a thumbnail list using server-side resizing on the fly (in Python code, using PIL or some other image manipulation library). The distinguishing feature here should be that large images are not downloaded to the browser and resized there (as would happen if you used image attributes; see #5)
+    
+    To use: You need to have "pillow" installed in your python
+    
+    To run: python server.py -A imageapp
+    
+    To use new functionality:
+        Click on "Thumbnails List" tab in the right corner.
+        
+        Every image that you upload will appear in the "/list_thumbs" page
+
+        I use PIL to resize the image, and base64 to embed it to <img> tag.
