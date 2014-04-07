@@ -9,7 +9,7 @@ from wsgiref.validate import validator
 import sys
 import argparse
 import quixote
-
+from cookieapp import wsgi_app as wsgi_cookie
 import imageapp
 from quotes.apps import QuotesApp
 from chat.apps import ChatApp
@@ -22,7 +22,7 @@ parser.add_argument('--myapp', help='Run myapp WSGI app', action = "store_true",
 
 
 parser.add_argument('-A', metavar='App', type=str, nargs=1, default=[""], \
-            choices=['quixote','myapp', 'imageapp','quotes', 'chat'], help="Select which app to run ['quixote','myapp', 'imageapp','quotes', 'chat']", dest='app')
+            choices=['quixote','myapp', 'imageapp','quotes', 'chat', 'cookie'], help="Select which app to run ['quixote','myapp', 'imageapp','quotes', 'chat']", dest='app')
 
 args = parser.parse_args()
 #Check arguments
@@ -114,6 +114,9 @@ def handle_connection(conn,host,port):
 
     elif args.app[0] == "chat":
         new_app = ChatApp('./chat/html')
+
+    elif args.app[0] == "cookie":
+        new_app = wsgi_cookie
 
 
     def start_response(status, response_headers):
