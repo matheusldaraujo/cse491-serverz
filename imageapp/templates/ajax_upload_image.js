@@ -62,7 +62,7 @@ $(document).ready(function (e) {
             success:function(id){
                 console.log("success");
                 $("#success").fadeIn()
-                $("#image").attr("src","/image_raw?special=latest")
+                $("#image").attr("src","/image_raw/" + getCookie("img_id"))
                 $("#image").attr("style","max-height:200px")
                 setCookie("img_id",id)
             },

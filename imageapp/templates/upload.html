@@ -9,6 +9,11 @@
 
 <div id="delete_option" style="display:none" >
 <a href="javascript: deleteMyImage(getCookie('img_id'));">Click to delete you image </a>
+<div>
+    {% if has_image %}
+        <img style="max-height: 100px" src='image_raw/{{ img_id }}'/>
+    {% endif %}
+</div>
 </div>
 
 <input id="has_image" value="{{ has_image }}" type="hidden">

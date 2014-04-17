@@ -53,16 +53,22 @@ def get_image(num):
     try:
         con = lite.connect(DB_path)
         cur = con.cursor()
-        image = cur.execute('SELECT image from images where user_id=%d' % num).fetchone()[0]
+        image = cur.execute('SELECT image from images where user_id=%d' % num).fetchone()
+        if image:
+            return image[0]
+        else:
+            return None
     
     except lite.Error, e:
         print "Error:" + str(e)
+        # import ipdb;ipdb.set_trace()
+        return None
 
     finally:
         if con:
             con.close()
 
-    return image
+
 
 def get_latest_image():
     try:
@@ -80,7 +86,18 @@ def get_latest_image():
     return image
 
 def delete_image(num):
-    images.pop(num)
+    try:
+        con = lite.connect(DB_path)
+        cur = con.cursor()
+        cur.execute('DELETE from images WHERE user_id=?', [num])
+        con.commit()
+        
+    except lite.Error, e:
+        print "Error:" + str(e)
+    finally:
+        if con:
+            con.close()
+
     return "Done"
 
 def has_image(num):
