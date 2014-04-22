@@ -65,5 +65,7 @@
         To use: run the server and access /image_raw/0 or /image_raw/1. Those 2 images are placed in the database when the server
         starts. The users images can be accessed in the same way where the numbers are the user_id in the cookies.
 	* PROJECT 14: Write down clear instructions for setting up a new Ubuntu machine on a cloud service of your choice (I have some documentation for Amazon) and installing the imageapp server on port 80. (5 pts; hosting)
+		      
+		      Check it in the "project14" folder in this directory
 
 
