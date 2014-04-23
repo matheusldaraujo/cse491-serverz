@@ -73,3 +73,5 @@
 	* First Commit hw12
 	* Project 20: After #14, set up a domain name and static IP address for your site. (5 pts; hosting)
 				  Hosted at: http://imageapp.matheusaraujo.com
+	* Project 1: Reimplement the imageapp functionality (minus the silly JavaScript) in your own app.py, or Django or flask. (5 pts each; app_framework)
+				 The reimplementation is inside "flask_imageapp" folder. Just run "server.py" inside that folder.
