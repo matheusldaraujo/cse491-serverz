@@ -80,12 +80,54 @@
     * Project 4: Change imageapp to support JPEG and TIFF. (5 pts; app_feature)
                  Just test the upload with the image example inside imageapp folder
     * Project 21: Write a chef recipe for installing your software from github on a Linux VM/ cloud computer. (5 pts; hosting)
+                Project 21 information below:
 
 =========================================================
                     PROJECT 21
 
 Tested in a brand new ubuntu 14.04 Virtual machine
 =========================================================
-
+#Instal git to download my app
 sudo apt-get install git
+
+#Download my app
 git clone https://github.com/matheusldaraujo/cse491-serverz.git
+
+#Install virtualenv to have my own python
+sudo apt-get install python-virtualenv
+
+#Install python-dev to install quixote
+sudo apt-get install python-dev
+
+#Create my own python
+virtualenv my_python
+
+#Put my own python in the PATH
+export PATH=`pwd`/my_python/bin:$PATH
+
+#Go to my app folder
+cd cse491-serverz
+
+#Install pip so can install other packages
+easy_install pip
+
+#Instal jinja
+pip install jinja2
+
+#Install quixote
+pip install quixote
+
+#Install PIL dependencies
+sudo apt-get install libjpeg-dev zlib1g-dev
+
+#Install PIL
+pip install pillow
+
+#Install zip
+pip install zip
+
+#Install sqlite
+sudo apt-get install sqlite3
+
+#Start the app you want like imageapp
+python server.py -A imageapp
