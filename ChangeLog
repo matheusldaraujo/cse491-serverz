@@ -75,3 +75,17 @@
 				  Hosted at: http://imageapp.matheusaraujo.com
 	* Project 1: Reimplement the imageapp functionality (minus the silly JavaScript) in your own app.py, or Django or flask. (5 pts each; app_framework)
 				 The reimplementation is inside "flask_imageapp" folder. Just run "server.py" inside that folder.
+
+2014-04-24 Matheus Araujo:
+    * Project 4: Change imageapp to support JPEG and TIFF. (5 pts; app_feature)
+                 Just test the upload with the image example inside imageapp folder
+    * Project 21: Write a chef recipe for installing your software from github on a Linux VM/ cloud computer. (5 pts; hosting)
+
+=========================================================
+                    PROJECT 21
+
+Tested in a brand new ubuntu 14.04 Virtual machine
+=========================================================
+
+sudo apt-get install git
+git clone https://github.com/matheusldaraujo/cse491-serverz.git

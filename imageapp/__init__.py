@@ -21,10 +21,10 @@ def setup():                            # stuff that should be run once.
     css.init_css()
 
     some_data = open('imageapp/dice.png', 'rb').read()
-    image.add_image(some_data)
+    image.add_image(some_data, "dice.png")
 
     some_data = open('imageapp/tux.png', 'rb').read()
-    image.add_image(some_data)
+    image.add_image(some_data, "tux.png")
     
 
 def teardown():                         # stuff that should be run once.

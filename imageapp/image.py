@@ -2,6 +2,7 @@
 from PIL import Image
 from StringIO import StringIO
 import base64
+from mimetypes import guess_type
 import sqlite3 as lite
 
 # images = {}
@@ -16,7 +17,7 @@ def create_thumbnail(data):
     hsize = int((float(img.size[1])*float(wpercent)))
     img = img.resize((basewidth,hsize), Image.ANTIALIAS)
 
-    #Trick way to get img, I did not figureout who te get image code from img variable without doing that
+    #Trick way to get img, I did not figure out who te get image code from img variable without doing that
     img.save("tmp.png")
     f_img = open("tmp.png", "r")
     
@@ -24,10 +25,14 @@ def create_thumbnail(data):
     thumb = base64.encodestring(f_img.read())
     return thumb
 
-def add_image(data):
+def add_image(data,name):
 
-    thumb = create_thumbnail(data)
-   
+    # Workround because PIL can't touch tiff
+    if guess_type(name)[0] != "image/tiff":
+        thumb = create_thumbnail(data)
+    else:
+        thumb = base64.encodestring(data)
+    
     try:
         con = lite.connect(DB_path)
         cur = con.cursor()
@@ -38,7 +43,7 @@ def add_image(data):
         else:
             user_id += 1
 
-        cur.execute('INSERT INTO images (image,thumb,user_id) VALUES (?, ?, ?)',[lite.Binary(data), thumb, user_id])
+        cur.execute('INSERT INTO images (image,thumb,user_id,name) VALUES (?, ?, ?, ?)',[lite.Binary(data), thumb, user_id, name])
         con.commit()
         
     except lite.Error, e:
@@ -53,9 +58,9 @@ def get_image(num):
     try:
         con = lite.connect(DB_path)
         cur = con.cursor()
-        image = cur.execute('SELECT image from images where user_id=%d' % num).fetchone()
+        image = cur.execute('SELECT image, name from images where user_id=%d' % num).fetchone()
         if image:
-            return image[0]
+            return image
         else:
             return None
     

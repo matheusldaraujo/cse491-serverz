@@ -1,6 +1,6 @@
 import quixote
 from quixote.directory import Directory, export, subdir
-
+from mimetypes import guess_type
 from . import html, image, javascript, css
 import json
 
@@ -18,12 +18,11 @@ class RootDirectory(Directory):
     def get_image_raw(self,path):
         if len(path) == 2 and "image_raw" in path[0]:
             image_request = int(path[1])
-            image_raw = image.get_image(image_request)
-
-            if image_raw:
+            image_db = image.get_image(image_request)
+            if image_db[0]:
                 response = quixote.get_response()
-                response.set_content_type('image/png')
-                return image_raw
+                response.set_content_type(guess_type(image_db[1])[0])
+                return image_db[0]
             else:
                 return "Invalid Image ID"
         return None
@@ -97,7 +96,7 @@ class RootDirectory(Directory):
         print 'received file with name:', the_file.base_filename
         data = the_file.read(int(1e9))
 
-        img_id = image.add_image(data)
+        img_id = image.add_image(data,the_file.base_filename)
 
         return str(img_id)
 
@@ -124,10 +123,10 @@ class RootDirectory(Directory):
 
     def get_image(self):
         response = quixote.get_response()
-        response.set_content_type('image/png')
         request = quixote.get_request()
         toGet = request.get_cookie("img_id")
         if image.has_image(int(toGet)):
-            img = image.get_image(int(toGet))
-            return img
+            img_db = image.get_image(int(toGet))
+            response.set_content_type(guess_type(img_db[1])[0])
+            return img_db[0]
         return "You have no image!"
